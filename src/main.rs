@@ -1,12 +1,14 @@
+mod commands;
+mod types;
+mod db;
+
 use poise::serenity_prelude as serenity;
 use dotenvy::dotenv;
 use std::env;
-use sqlx::SqlitePool;
 
-mod commands;
-mod types;
 use crate::commands::{quote, ping};
 use crate::types::{Data, Error};
+use crate::db::setup_db;
 
 #[tokio::main]
 async fn main() {
@@ -26,18 +28,7 @@ async fn main() {
         poise::builtins::register_in_guild(ctx, &framework.options().commands, guild_id).await?; // using guild id temp for dev
         println!("{} is connected. Hello, world!", ctx.cache.current_user().name);
 
-        let db = SqlitePool::connect("sqlite:quotes.db").await?;
-        sqlx::query(
-          "CREATE TABLE IF NOT EXISTS quotes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            quoted_by TEXT NOT NULL,
-            quoted_user TEXT NOT NULL,
-            quoted_text TEXT NOT NULL,
-            quote_time TEXT NOT NULL
-          );"
-        )
-        .execute(&db)
-        .await?;
+        let db = setup_db().await?;
 
         Ok(Data { db })
       })
