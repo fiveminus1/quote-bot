@@ -1,11 +1,12 @@
 use sqlx::SqlitePool;
 use poise::serenity_prelude::UserId;
+use chrono::{DateTime, Utc};
 
 pub struct Quote {
   pub quoted_by: UserId,
   pub quoted_user: UserId,
   pub quoted_text: String,
-  pub quote_time: String,
+  pub quote_time: DateTime<Utc>,
 }
 
 pub struct Data {

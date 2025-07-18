@@ -26,7 +26,7 @@ pub async fn insert_quote(db: &SqlitePool, quote: &Quote) -> Result<(), sqlx::Er
   .bind(quote.quoted_by.to_string())
   .bind(quote.quoted_user.to_string())
   .bind(&quote.quoted_text)
-  .bind(&quote.quote_time)
+  .bind(&quote.quote_time.to_rfc3339())
   .execute(db)
   .await?;
 
