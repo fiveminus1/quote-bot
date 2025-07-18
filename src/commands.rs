@@ -1,14 +1,15 @@
 use poise::serenity_prelude as serenity;
 use chrono::Utc;
-use crate::types::{Context, Error};
+use crate::types::{Context, Error, Quote};
+use crate::db::insert_quote;
 
-#[derive(Debug, Clone)]
-struct Quote {
-  quoted_by: serenity::UserId,
-  quoted_user: serenity::UserId,
-  quoted_text: String,
-  quote_time: String,
-}
+// #[derive(Debug, Clone)]
+// struct Quote {
+//   quoted_by: serenity::UserId,
+//   quoted_user: serenity::UserId,
+//   quoted_text: String,
+//   quote_time: String,
+// }
 
 #[poise::command(slash_command)]
 pub async fn quote(
@@ -23,16 +24,7 @@ pub async fn quote(
     quote_time: Utc::now().to_rfc3339(),
   };
 
-  sqlx::query(
-    "INSERT INTO quotes (quoted_by, quoted_user, quoted_text, quote_time)
-    VALUES (?, ?, ?, ?)"
-  )
-  .bind(quote.quoted_by.to_string())
-  .bind(quote.quoted_user.to_string())
-  .bind(&quote.quoted_text)
-  .bind(&quote.quote_time)
-  .execute(&ctx.data().db)
-  .await?;
+  insert_quote(&ctx.data().db, &quote).await?;
 
   ctx.say(format!(
     "Logged quote. Quoted by <@{}>\nQuoted user<@{}>\n> {}",
