@@ -1,20 +1,20 @@
-use std::sync::Arc;
-use tokio::sync::Mutex;
-
 use poise::serenity_prelude as serenity;
 use dotenvy::dotenv;
 use std::env;
+use sqlx::SqlitePool;
+use chrono::Utc;
 
 #[derive(Debug, Clone)]
 struct Quote {
   quoted_by: serenity::UserId,
   quoted_user: serenity::UserId,
   quoted_text: String,
+  quote_time: String,
 }
 
-#[derive(Default)]
 struct Data{
-  quotes: Arc<Mutex<Vec<Quote>>>,
+  // quotes: Arc<Mutex<Vec<Quote>>>,
+  db: SqlitePool,
 }
 type Error = Box<dyn std::error::Error + Send + Sync>;
 type Context<'a> = poise::Context<'a, Data, Error>;
@@ -29,12 +29,19 @@ async fn quote(
     quoted_by: ctx.author().id,
     quoted_user: user.id,
     quoted_text: text.clone(),
+    quote_time: Utc::now().to_rfc3339(),
   };
 
-  {
-    let mut quotes = ctx.data().quotes.lock().await;
-    quotes.push(quote.clone());
-  }
+  sqlx::query(
+    "INSERT INTO quotes (quoted_by, quoted_user, quoted_text, quote_time)
+    VALUES (?, ?, ?, ?)"
+  )
+  .bind(quote.quoted_by.to_string())
+  .bind(quote.quoted_user.to_string())
+  .bind(&quote.quoted_text)
+  .bind(&quote.quote_time)
+  .execute(&ctx.data().db)
+  .await?;
 
   ctx.say(format!(
     "Logged quote. Quoted by <@{}>\nQuoted user<@{}>\n> {}",
@@ -72,9 +79,21 @@ async fn main() {
         let guild_id = serenity::GuildId::new(1073078539051614259);
         poise::builtins::register_in_guild(ctx, &framework.options().commands, guild_id).await?; // using guild id temp for dev
         println!("{} is connected. Hello, world!", ctx.cache.current_user().name);
-        Ok(Data {
-          quotes: Arc::new(Mutex::new(Vec::new())),
-        })
+
+        let db = SqlitePool::connect("sqlite:quotes.db").await?;
+        sqlx::query(
+          "CREATE TABLE IF NOT EXISTS quotes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            quoted_by TEXT NOT NULL,
+            quoted_user TEXT NOT NULL,
+            quoted_text TEXT NOT NULL,
+            quote_time TEXT NOT NULL
+          );"
+        )
+        .execute(&db)
+        .await?;
+
+        Ok(Data { db })
       })
     })
     .build();
