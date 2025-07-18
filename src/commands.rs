@@ -3,6 +3,7 @@ use chrono::{Local};
 use crate::types::{Context, Error, Quote, LeaderboardType};
 use crate::db::{insert_quote, get_most_quoted, get_most_quotes};
 use interim::{parse_date_string, Dialect};
+use crate::helpers::{format_leaderboard_page, create_nav_buttons};
 
 #[poise::command(slash_command)]
 pub async fn quote(
@@ -59,19 +60,19 @@ pub async fn leaderboard(
     LeaderboardType::MostQuotes => get_most_quotes(&ctx.data().db).await?,
   };
 
-  let mut leaderboard = String::new();
-  for (i, (user_id, count)) in results.iter().enumerate(){
-    leaderboard.push_str(&format!("**{}.** <@{}> - **{}** quotes\n", i+1, user_id, count));
-  }
+  let page = 0;
+  let per_page = 5; // 15 board members, 3 total pages?
+  let total_pages = (results.len() + per_page - 1) / per_page;
+
+  let content = format_leaderboard_page(&results, kind, page, total_pages);
+  let components = create_nav_buttons(page, total_pages);
 
   ctx.send(poise::CreateReply::default()
-    .content(format!("**Leaderboard - {:?}:**\n{}", 
-    match kind {
-      LeaderboardType::MostQuoted => "Most Quoted",
-      LeaderboardType::MostQuotes => "Most Quotes",
-    }, leaderboard))
-    .ephemeral(true))
-    .await?;
+    .content(content)
+    .components(components)
+    .ephemeral(true)
+  )
+  .await?;
 
   Ok(())
 }
