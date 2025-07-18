@@ -10,3 +10,4 @@ tokio = { version = "1.21.2", features = ["macros", "rt-multi-thread"] }
 dotenvy = "0.15"
 sqlx = { version = "0.8", features = ["runtime-tokio", "macros", "sqlite"] }
 chrono = { version = "0.4", features = ["serde"] }
+interim = { version = "0.2.1", features = ["chrono_0_4"] }
