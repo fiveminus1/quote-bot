@@ -1,7 +1,7 @@
 use poise::serenity_prelude as serenity;
 use chrono::{Local};
-use crate::types::{Context, Error, Quote};
-use crate::db::insert_quote;
+use crate::types::{Context, Error, Quote, LeaderboardType};
+use crate::db::{insert_quote, get_most_quoted, get_most_quotes};
 use interim::{parse_date_string, Dialect};
 
 #[poise::command(slash_command)]
@@ -46,6 +46,33 @@ pub async fn quote(
     .ephemeral(true)
   ).await?;
   
+  Ok(())
+}
+
+#[poise::command(slash_command)]
+pub async fn leaderboard(
+  ctx: Context<'_>,
+  #[description = "Type of leaderboard"] kind: LeaderboardType,
+) -> Result<(), Error> {
+  let results = match kind {
+    LeaderboardType::MostQuoted => get_most_quoted(&ctx.data().db).await?,
+    LeaderboardType::MostQuotes => get_most_quotes(&ctx.data().db).await?,
+  };
+
+  let mut leaderboard = String::new();
+  for (i, (user_id, count)) in results.iter().enumerate(){
+    leaderboard.push_str(&format!("**{}.** <@{}> - **{}** quotes\n", i+1, user_id, count));
+  }
+
+  ctx.send(poise::CreateReply::default()
+    .content(format!("**Leaderboard - {:?}:**\n{}", 
+    match kind {
+      LeaderboardType::MostQuoted => "Most Quoted",
+      LeaderboardType::MostQuotes => "Most Quotes",
+    }, leaderboard))
+    .ephemeral(true))
+    .await?;
+
   Ok(())
 }
 

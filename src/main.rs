@@ -6,7 +6,7 @@ use poise::serenity_prelude as serenity;
 use dotenvy::dotenv;
 use std::env;
 
-use crate::commands::{quote, ping};
+use crate::commands::{quote, ping, leaderboard};
 use crate::types::{Data, Error};
 use crate::db::setup_db;
 
@@ -19,7 +19,7 @@ async fn main() {
 
   let framework = poise::Framework::builder()
     .options(poise::FrameworkOptions::<Data, Error> {
-      commands: vec![ping(), quote()],
+      commands: vec![ping(), quote(), leaderboard()],
       ..Default::default()
     })
     .setup(|ctx, _ready, framework| {

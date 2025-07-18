@@ -13,5 +13,13 @@ pub struct Data {
   pub db: SqlitePool
 }
 
+#[derive(poise::ChoiceParameter)]
+pub enum LeaderboardType {
+  #[name = "most_quoted"]
+  MostQuoted,
+  #[name = "most_quotes"]
+  MostQuotes,
+}
+
 pub type Error = Box<dyn std::error::Error + Send + Sync>;
 pub type Context<'a> = poise::Context<'a, Data, Error>;
