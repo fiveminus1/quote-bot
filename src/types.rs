@@ -1,6 +1,7 @@
 use sqlx::SqlitePool;
 use poise::serenity_prelude::UserId;
 use chrono::{DateTime, Local};
+use notion_client::endpoints::Client as NotionClient;
 
 pub struct Quote {
   pub quoted_by: UserId,
@@ -10,7 +11,9 @@ pub struct Quote {
 }
 
 pub struct Data {
-  pub db: SqlitePool
+  pub db: SqlitePool,
+  pub notion: NotionClient,
+  pub notion_db_id: String,
 }
 
 #[derive(poise::ChoiceParameter)]

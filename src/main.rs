@@ -2,10 +2,12 @@ mod commands;
 mod types;
 mod db;
 mod helpers;
+mod notion;
 
 use poise::serenity_prelude as serenity;
 use dotenvy::dotenv;
 use std::env;
+use notion_client::endpoints::Client as NotionClient;
 
 use crate::commands::{quote, ping, leaderboard};
 use crate::types::{Data, Error};
@@ -27,11 +29,17 @@ async fn main() {
       Box::pin(async move {
         let guild_id = serenity::GuildId::new(1073078539051614259);
         poise::builtins::register_in_guild(ctx, &framework.options().commands, guild_id).await?; // using guild id temp for dev
+        let db = setup_db().await?;
+        let notion_api_key = env::var("NOTION_API_KEY");
+        let notion_db_id = env::var("NOTION_DB_ID")?;
+
+        let notion = NotionClient::new(notion_api_key?, None)
+          .map_err(|e| format!("Error (Notion): Failed to initialize client - {}", e))?;
+
         println!("{} is connected. Hello, world!", ctx.cache.current_user().name);
 
-        let db = setup_db().await?;
 
-        Ok(Data { db })
+        Ok(Data { db, notion, notion_db_id })
       })
     })
     .build();
