@@ -12,7 +12,7 @@ pub async fn quote(
   ctx: Context<'_>,
   #[description = "Who said it?"] who: serenity::User,
   #[description = "What did they say?"] quote: String,
-  #[description = "When did they say it? (optional, defaults to now if not specified)"] when: Option<String>, //todo: better description on how to describe a date
+  #[description = "When did they say it? (optional, defaults to now if not specified)"] when: Option<String>,
 ) -> Result<(), Error> {
   let quote_time = match &when {
     Some(t) => match parse_date_string(&t, Local::now(), Dialect::Us) {

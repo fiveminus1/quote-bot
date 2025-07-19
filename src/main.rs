@@ -28,8 +28,9 @@ async fn main() {
     })
     .setup(|ctx, _ready, framework| {
       Box::pin(async move {
-        let guild_id = serenity::GuildId::new(1073078539051614259);
-        poise::builtins::register_in_guild(ctx, &framework.options().commands, guild_id).await?; // using guild id temp for dev
+        let env_guild_id: u64 = env::var("DISCORD_GUILD_ID")?.parse().map_err(|e| format!("Error: invalid Discord Guild ID - {}", e))?;
+        let guild_id = serenity::GuildId::new(env_guild_id); // using env guild id because i'm not patient enough to wait for discord to register slashes globally
+        poise::builtins::register_in_guild(ctx, &framework.options().commands, guild_id).await?; 
         let db = setup_db().await?;
         let notion_api_key = env::var("NOTION_API_KEY");
         let notion_db_id = env::var("NOTION_DB_ID")?;
