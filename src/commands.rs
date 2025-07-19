@@ -37,7 +37,7 @@ pub async fn quote(
   };
 
   insert_quote(&ctx.data().db, &quote).await?;
-  if let Err(e) = add_quote_to_notion(&ctx.data().notion, &ctx.data().notion_db_id, &quote).await {
+  if let Err(e) = add_quote_to_notion(&ctx.data().notion, &ctx.data().notion_db_id, &quote, &ctx.data().user_map).await {
     eprintln!("Error (Notion): failed to add quote to Notion - {}", e);
   }
 

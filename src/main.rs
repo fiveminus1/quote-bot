@@ -3,6 +3,7 @@ mod types;
 mod db;
 mod helpers;
 mod notion;
+mod user_map;
 
 use poise::serenity_prelude as serenity;
 use dotenvy::dotenv;
@@ -32,6 +33,7 @@ async fn main() {
         let db = setup_db().await?;
         let notion_api_key = env::var("NOTION_API_KEY");
         let notion_db_id = env::var("NOTION_DB_ID")?;
+        let user_map = user_map::UserMap::load_from_file("user_map.json")?; //todo: probably automate this
 
         let notion = NotionClient::new(notion_api_key?, None)
           .map_err(|e| format!("Error (Notion): Failed to initialize client - {}", e))?;
@@ -39,7 +41,7 @@ async fn main() {
         println!("{} is connected. Hello, world!", ctx.cache.current_user().name);
 
 
-        Ok(Data { db, notion, notion_db_id })
+        Ok(Data { db, notion, notion_db_id, user_map })
       })
     })
     .build();

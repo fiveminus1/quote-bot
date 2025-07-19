@@ -5,11 +5,13 @@ use notion_client::objects::page::{DateOrDateTime, DatePropertyValue, PageProper
 use notion_client::objects::rich_text::{RichText, Text};
 use crate::{types::{Error, Quote}};
 use uuid::Uuid;
+use crate::user_map::UserMap;
 
 pub async fn add_quote_to_notion(
     client: &NotionClient,
     database_id: &str,
     quote: &Quote,
+    user_map: &UserMap
 ) -> Result<(), Error> {
     fn make_rich_text_prop(content: String) -> PageProperty {
         PageProperty::RichText { 
@@ -25,11 +27,15 @@ pub async fn add_quote_to_notion(
             }], 
         }
     }
+    
+    let quoted_name = user_map.resolve(&quote.quoted_user.to_string());
+    let quoted_by_name = user_map.resolve(&quote.quoted_by.to_string());
+
 
     let mut props = std::collections::BTreeMap::new();
-    props.insert("Quoted Person".to_string(), make_rich_text_prop(quote.quoted_user.to_string()));
+    props.insert("Quoted Person".to_string(), make_rich_text_prop(quoted_name));
     props.insert("Quote".to_string(), make_rich_text_prop(quote.quoted_text.to_string()));
-    props.insert("Quoted By".to_string(), make_rich_text_prop(quote.quoted_by.to_string()));
+    props.insert("Quoted By".to_string(), make_rich_text_prop(quoted_by_name));
     props.insert("Date".to_string(), PageProperty::Date { 
         id: Some(Uuid::new_v4().to_string()), 
         date: Some(DatePropertyValue{
