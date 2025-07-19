@@ -10,7 +10,7 @@ use dotenvy::dotenv;
 use std::env;
 use notion_client::endpoints::Client as NotionClient;
 
-use crate::commands::{quote, ping, leaderboard};
+use crate::commands::{quote, leaderboard};
 use crate::types::{Data, Error};
 use crate::db::setup_db;
 
@@ -23,7 +23,7 @@ async fn main() {
 
   let framework = poise::Framework::builder()
     .options(poise::FrameworkOptions::<Data, Error> {
-      commands: vec![ping(), quote(), leaderboard()],
+      commands: vec![quote(), leaderboard()],
       ..Default::default()
     })
     .setup(|ctx, _ready, framework| {

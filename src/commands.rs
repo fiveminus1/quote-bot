@@ -6,19 +6,20 @@ use crate::db::{insert_quote, get_most_quoted, get_most_quotes};
 use interim::{parse_date_string, Dialect};
 use crate::helpers::{create_leaderboard_embed, create_nav_buttons, format_leaderboard_page};
 
+/// Log a quote from someone! 
 #[poise::command(slash_command)]
 pub async fn quote(
   ctx: Context<'_>,
-  #[description = "Who are you quoting?"] user: serenity::User,
-  #[description = "What did they say?"] text: String,
-  #[description = "When did they say it? (Optional)"] time: Option<String>, //todo: better description on how to describe a date
+  #[description = "Who said it?"] who: serenity::User,
+  #[description = "What did they say?"] quote: String,
+  #[description = "When did they say it? (optional, defaults to now if not specified)"] when: Option<String>, //todo: better description on how to describe a date
 ) -> Result<(), Error> {
-  let quote_time = match &time {
+  let quote_time = match &when {
     Some(t) => match parse_date_string(&t, Local::now(), Dialect::Us) {
       Ok(parsed) => parsed,
       Err(_) => {
         ctx.send(poise::CreateReply::default()
-          .content("Error: invalid date or couldn't parse.")
+          .content("Error: invalid date or couldn't parse. Try '5pm,' 'yesterday 2:30pm,' '6/19 4pm'.")
           .ephemeral(true)
         )
         .await?;
@@ -31,8 +32,8 @@ pub async fn quote(
 
   let quote = Quote{
     quoted_by: ctx.author().id,
-    quoted_user: user.id,
-    quoted_text: text.clone(),
+    quoted_user: who.id,
+    quoted_text: quote.clone(),
     quote_time,
   };
 
@@ -54,12 +55,13 @@ pub async fn quote(
   Ok(())
 }
 
+/// Check who's been quoted the most, or who has the most quotes!
 #[poise::command(slash_command)]
 pub async fn leaderboard(
   ctx: Context<'_>,
-  #[description = "Type of leaderboard"] kind: LeaderboardType,
+  #[description = "Type of leaderboard"] sort_by: LeaderboardType,
 ) -> Result<(), Error> {
-  let results = match kind {
+  let results = match sort_by {
     LeaderboardType::MostQuoted => get_most_quoted(&ctx.data().db).await?,
     LeaderboardType::MostQuotes => get_most_quotes(&ctx.data().db).await?,
   };
@@ -69,7 +71,7 @@ pub async fn leaderboard(
   let total_pages = (results.len() + per_page - 1) / per_page;
 
   let description = format_leaderboard_page(&results, page);
-  let embed = create_leaderboard_embed(&kind, description, page, total_pages);
+  let embed = create_leaderboard_embed(&sort_by, description, page, total_pages);
   let components = create_nav_buttons(page, total_pages);
 
   ctx.send(poise::CreateReply::default()
@@ -78,13 +80,5 @@ pub async fn leaderboard(
   )
   .await?;
 
-  Ok(())
-}
-
-#[poise::command(slash_command)]
-pub async fn ping(
-  ctx: Context<'_>,
-) -> Result<(), Error> {
-  ctx.say("Pong!").await?;
   Ok(())
 }
