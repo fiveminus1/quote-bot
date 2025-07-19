@@ -1,7 +1,7 @@
 use notion_client::endpoints::Client as NotionClient;
 use notion_client::endpoints::pages::create::{request::CreateAPageRequest};
 use notion_client::objects::parent::Parent;
-use notion_client::objects::page::{DateOrDateTime, DatePropertyValue, PageProperty};
+use notion_client::objects::page::{DateOrDateTime, DatePropertyValue, PageProperty, SelectPropertyValue};
 use notion_client::objects::rich_text::{RichText, Text};
 use crate::{types::{Error, Quote}};
 use uuid::Uuid;
@@ -33,9 +33,27 @@ pub async fn add_quote_to_notion(
 
 
     let mut props = std::collections::BTreeMap::new();
-    props.insert("Quoted Person".to_string(), make_rich_text_prop(quoted_name));
+    props.insert("Quoted Person".to_string(), 
+        PageProperty::MultiSelect { // todo: allow multiple people?
+            id: Some(Uuid::new_v4().to_string()), 
+            multi_select: vec![SelectPropertyValue{
+                name: Some(quoted_name.clone()),
+                id: None,
+                color: None,
+            }], 
+        },
+    );
     props.insert("Quote".to_string(), make_rich_text_prop(quote.quoted_text.to_string()));
-    props.insert("Quoted By".to_string(), make_rich_text_prop(quoted_by_name));
+    props.insert("Quoted By".to_string(),
+        PageProperty::Select { 
+            id: Some(Uuid::new_v4().to_string()), 
+            select: Some(SelectPropertyValue {
+                name: Some(quoted_by_name.clone()),
+                id: None,
+                color: None,
+            }), 
+        },
+    );
     props.insert("Date".to_string(), PageProperty::Date { 
         id: Some(Uuid::new_v4().to_string()), 
         date: Some(DatePropertyValue{
