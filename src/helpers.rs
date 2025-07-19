@@ -1,32 +1,24 @@
 use poise::serenity_prelude as serenity;
+use ::serenity::all::Colour;
 use crate::types::{LeaderboardType};
 
 pub fn format_leaderboard_page(
   results: &[(String, i64)],
-  kind: LeaderboardType,
   page: usize,
-  total_pages: usize
 ) -> String {
-  let per_page = 5;
+  let per_page = 5; 
   let start = page * per_page;
   let end = (start + per_page).min(results.len());
 
-  let mut content = format!(
-    "**{} Leaderboard \nPage {}/{}\n\n",
-    match kind {
-      LeaderboardType::MostQuoted => "Most Quoted",
-      LeaderboardType::MostQuotes => "Most Quotes",
-    },
-    page + 1,
-    total_pages
-  );
+  let mut content = String::new();
 
   for (i, (user_id, count)) in results[start..end].iter().enumerate() {
     content.push_str(&format!(
-      "**{}.** <@{}> - {} quotes\n",
+      "{}. <@{}> - {} {}\n",
       start + i + 1,
       user_id,
-      count
+      count,
+      if *count == 1 { "quote" } else { "quotes" }
     ));
   }
 
@@ -48,4 +40,22 @@ pub fn create_nav_buttons(
         .disabled(page + 1 >= total_pages);
 
     vec![serenity::CreateActionRow::Buttons(vec![prev_btn, next_btn])]
+}
+
+pub fn create_leaderboard_embed(
+  kind: &LeaderboardType,
+  description: String,
+  page: usize,
+  total_pages: usize
+) -> serenity::CreateEmbed {
+  let title = match kind {
+    LeaderboardType::MostQuoted => "Most Quoted",
+    LeaderboardType::MostQuotes => "Most Quotes",
+  };
+
+  serenity::CreateEmbed::default()
+    .title(format!("{}", title))
+    .description(description)
+    .footer(serenity::CreateEmbedFooter::new(format!("Page {}/{}", page + 1, total_pages)))
+    .color(Colour::MAGENTA)
 }

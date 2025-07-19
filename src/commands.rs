@@ -4,7 +4,7 @@ use crate::notion::add_quote_to_notion;
 use crate::types::{Context, Error, Quote, LeaderboardType};
 use crate::db::{insert_quote, get_most_quoted, get_most_quotes};
 use interim::{parse_date_string, Dialect};
-use crate::helpers::{format_leaderboard_page, create_nav_buttons};
+use crate::helpers::{create_leaderboard_embed, create_nav_buttons, format_leaderboard_page};
 
 #[poise::command(slash_command)]
 pub async fn quote(
@@ -68,13 +68,13 @@ pub async fn leaderboard(
   let per_page = 5; // 15 board members, 3 total pages?
   let total_pages = (results.len() + per_page - 1) / per_page;
 
-  let content = format_leaderboard_page(&results, kind, page, total_pages);
+  let description = format_leaderboard_page(&results, page);
+  let embed = create_leaderboard_embed(&kind, description, page, total_pages);
   let components = create_nav_buttons(page, total_pages);
 
   ctx.send(poise::CreateReply::default()
-    .content(content)
+    .embed(embed)
     .components(components)
-    .ephemeral(true)
   )
   .await?;
 
