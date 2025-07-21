@@ -23,10 +23,6 @@ jobs:
       - name: Copy files to EC2
         run: |
           rsync -avz --exclude 'target' --exclude '.git' -e "ssh -i ~/.ssh/id_rsa" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/quote-bot
-      
-      - name: Upload env and user map
-        run: |
-          scp -i ~/.ssh/id_rsa .env user_map.json ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/quote-bot/
 
       - name: Build and run Docker on EC2
         run: |
