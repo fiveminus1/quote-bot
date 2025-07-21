@@ -33,7 +33,7 @@ jobs:
             docker run -d \
               --restart unless-stopped \
               --name quote-bot \
-              --env-file /home/${{ secrets.EC2_USER }}/.env \
-              -v /home/${{ secrets.EC2_USER }}/user_map.json:/app/user_map.json \
+              --env-file /home/${{ secrets.EC2_USER }}/quote-bot/.env \
+              -v /home/${{ secrets.EC2_USER }}/quote-bot/user_map.json:/app/user_map.json \
               fiveminus1/quote-bot:latest
           EOF
