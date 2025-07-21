@@ -1,3 +1,4 @@
 /target
 .env
 quotes.db
+user_map.json

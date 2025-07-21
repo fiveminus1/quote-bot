@@ -1,10 +1,11 @@
 use poise::serenity_prelude as serenity;
-use chrono::{Local};
+use chrono::{Local, Utc};
 use crate::notion::add_quote_to_notion;
 use crate::types::{Context, Error, Quote, LeaderboardType};
 use crate::db::{insert_quote, get_most_quoted, get_most_quotes};
 use interim::{parse_date_string, Dialect};
 use crate::helpers::{create_leaderboard_embed, create_nav_buttons, format_leaderboard_page};
+use chrono_humanize::HumanTime;
 
 /// Log a quote from someone! 
 #[poise::command(slash_command)]
@@ -37,6 +38,8 @@ pub async fn quote(
     quote_time,
   };
 
+  let humanized_time = HumanTime::from(quote.quote_time.with_timezone(&Utc));
+
   insert_quote(&ctx.data().db, &quote).await?;
   if let Err(e) = add_quote_to_notion(&ctx.data().notion, &ctx.data().notion_db_id, &quote, &ctx.data().user_map).await {
     eprintln!("Error (Notion): failed to add quote to Notion - {}", e);
@@ -44,10 +47,10 @@ pub async fn quote(
 
   ctx.send(poise::CreateReply::default()
     .content(format!(
-      "Logged quote by <@{}>:\n> {} \nat {}",
+      "Logged quote by <@{}>:\n> {} \n{}",
       quote.quoted_user,
       quote.quoted_text,
-      quote.quote_time
+      humanized_time
     ))
     .ephemeral(true)
   ).await?;
