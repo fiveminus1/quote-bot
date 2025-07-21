@@ -32,6 +32,8 @@ jobs:
             docker rm quote-bot || true
             docker run -d \
               --name quote-bot \
-              --env-file /home/${{ secrets.EC2_USER }}/quote-bot/.env \
+              -v /home/${{ secrets.EC2_USER }}/quote-bot/.env:/app/.env \
+              -v /home/${{ secrets.EC2_USER }}/quote-bot/quotes.db:/app/quotes.db \
+              -v /home/${{ secrets.EC2_USER }}/quote-bot/user_map.json:/app/user_map.json \
               fiveminus1/quote-bot:latest
           EOF

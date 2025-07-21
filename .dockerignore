@@ -2,4 +2,3 @@ target
 .git
 .gitignore
 .env
-quotes.db
