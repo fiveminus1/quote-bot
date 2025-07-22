@@ -27,6 +27,9 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
