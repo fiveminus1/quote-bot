@@ -16,8 +16,11 @@ use crate::db::setup_db;
 
 #[tokio::main]
 async fn main() {
+  println!("Loading .env");
   dotenv().ok();
+  println!("Loading token");
   let token = env::var("DISCORD_TOKEN").expect("Error: missing Discord Token in .env");
+  println!("Loaded token");
 
   let intents = serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::GUILD_MESSAGES | serenity::GatewayIntents::MESSAGE_CONTENT;
 
