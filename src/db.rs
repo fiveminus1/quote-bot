@@ -2,7 +2,7 @@ use sqlx::{SqlitePool, Row};
 use crate::types::Quote;
 
 pub async fn setup_db() -> Result<SqlitePool, sqlx::Error>{
-  let db = SqlitePool::connect("sqlite:/app/quotes.db").await?;
+  let db = SqlitePool::connect("sqlite:/app/quotes.db").await?; // sqlite:/app/quotes.db
 
   sqlx::migrate!("./migrations")
     .run(&db)

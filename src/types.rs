@@ -20,9 +20,9 @@ pub struct Data {
 
 #[derive(poise::ChoiceParameter)]
 pub enum LeaderboardType {
-  #[name = "most_quoted"]
+  #[name = "Most Quoted"]
   MostQuoted,
-  #[name = "most_quotes"]
+  #[name = "Most Quotes"]
   MostQuotes,
 }
 

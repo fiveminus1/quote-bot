@@ -24,6 +24,4 @@ WORKDIR /app
 
 COPY --from=builder /app/target/release/quote-bot .
 
-COPY user_map.json ./
-
 CMD ["./quote-bot"]

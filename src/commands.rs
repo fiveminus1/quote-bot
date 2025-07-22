@@ -1,11 +1,11 @@
 use poise::serenity_prelude as serenity;
-use chrono::{Local, Utc};
+use chrono::{Local};
 use crate::notion::add_quote_to_notion;
 use crate::types::{Context, Error, Quote, LeaderboardType};
 use crate::db::{insert_quote, get_most_quoted, get_most_quotes};
 use interim::{parse_date_string, Dialect};
 use crate::helpers::{create_leaderboard_embed, create_nav_buttons, format_leaderboard_page};
-use chrono_humanize::HumanTime;
+use ::serenity::all::Colour;
 
 /// Log a quote from someone! 
 #[poise::command(slash_command)]
@@ -13,7 +13,7 @@ pub async fn quote(
   ctx: Context<'_>,
   #[description = "Who said it?"] who: serenity::User,
   #[description = "What did they say?"] quote: String,
-  #[description = "When did they say it? (optional, defaults to now if not specified)"] when: Option<String>,
+  #[description = "When did they say it? (ex: today 2pm)"] when: Option<String>,
 ) -> Result<(), Error> {
   let quote_time = match &when {
     Some(t) => match parse_date_string(&t, Local::now(), Dialect::Us) {
@@ -37,21 +37,28 @@ pub async fn quote(
     quoted_text: quote.clone(),
     quote_time,
   };
-
-  let humanized_time = HumanTime::from(quote.quote_time.with_timezone(&Utc));
-
+  
   insert_quote(&ctx.data().db, &quote).await?;
   if let Err(e) = add_quote_to_notion(&ctx.data().notion, &ctx.data().notion_db_id, &quote, &ctx.data().user_map).await {
     eprintln!("Error (Notion): failed to add quote to Notion - {}", e);
   }
 
+  let timestamp = quote.quote_time.timestamp();
   ctx.send(poise::CreateReply::default()
-    .content(format!(
-      "Logged quote by <@{}>:\n> {} \n{}",
-      quote.quoted_user,
-      quote.quoted_text,
-      humanized_time
-    ))
+    .embed(
+      serenity::CreateEmbed::default()
+        .title("🔥 Quote logged")
+        .description(format!("\"*{}*\" -<@{}>", quote.quoted_text, quote.quoted_user))
+        .field("Date", format!("<t:{}:F>", timestamp), true)
+        .color(Colour::MAGENTA)
+
+    )
+    // .content(format!(
+    //   "🔥 Logged quote by <@{}> on <t:{}:F>:\n> {}",
+    //   quote.quoted_user,
+    //   timestamp,
+    //   quote.quoted_text,
+    // ))
     .ephemeral(true)
   ).await?;
   

@@ -49,8 +49,8 @@ pub fn create_leaderboard_embed(
   total_pages: usize
 ) -> serenity::CreateEmbed {
   let title = match kind {
-    LeaderboardType::MostQuoted => "Most Quoted",
-    LeaderboardType::MostQuotes => "Most Quotes",
+    LeaderboardType::MostQuoted => "Most Quoted 🗣️",
+    LeaderboardType::MostQuotes => "Most Quotes 👀",
   };
 
   serenity::CreateEmbed::default()
