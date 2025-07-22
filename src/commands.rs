@@ -4,8 +4,8 @@ use crate::notion::add_quote_to_notion;
 use crate::types::{Context, Error, Quote, LeaderboardType};
 use crate::db::{insert_quote, get_most_quoted, get_most_quotes};
 use interim::{parse_date_string, Dialect};
-use crate::helpers::{create_leaderboard_embed, create_nav_buttons, format_leaderboard_page};
-use ::serenity::all::Colour;
+use crate::helpers::{create_leaderboard_embed, create_nav_buttons, format_leaderboard_page, get_embed_author};
+use ::serenity::all::{Colour};
 
 /// Log a quote from someone! 
 #[poise::command(slash_command)]
@@ -47,18 +47,13 @@ pub async fn quote(
   ctx.send(poise::CreateReply::default()
     .embed(
       serenity::CreateEmbed::default()
-        .title("🔥 Quote logged")
-        .description(format!("\"*{}*\" -<@{}>", quote.quoted_text, quote.quoted_user))
+        .author(get_embed_author(&ctx))
+        .title("🔥 **Quote logged**")
+        .description(format!("\n\"*{}*\" -<@{}>", quote.quoted_text, quote.quoted_user))
         .field("Date", format!("<t:{}:F>", timestamp), true)
         .color(Colour::MAGENTA)
 
     )
-    // .content(format!(
-    //   "🔥 Logged quote by <@{}> on <t:{}:F>:\n> {}",
-    //   quote.quoted_user,
-    //   timestamp,
-    //   quote.quoted_text,
-    // ))
     .ephemeral(true)
   ).await?;
   
@@ -81,7 +76,7 @@ pub async fn leaderboard(
   let total_pages = (results.len() + per_page - 1) / per_page;
 
   let description = format_leaderboard_page(&results, page);
-  let embed = create_leaderboard_embed(&sort_by, description, page, total_pages);
+  let embed = create_leaderboard_embed(&ctx, &sort_by, description, page, total_pages);
   let components = create_nav_buttons(page, total_pages);
 
   ctx.send(poise::CreateReply::default()

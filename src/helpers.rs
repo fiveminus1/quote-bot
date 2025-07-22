@@ -1,5 +1,5 @@
 use poise::serenity_prelude as serenity;
-use ::serenity::all::Colour;
+use ::serenity::all::{Colour, CreateEmbedAuthor, CacheHttp};
 use crate::types::{LeaderboardType};
 
 pub fn format_leaderboard_page(
@@ -43,6 +43,7 @@ pub fn create_nav_buttons(
 }
 
 pub fn create_leaderboard_embed(
+  ctx: &impl CacheHttp,
   kind: &LeaderboardType,
   description: String,
   page: usize,
@@ -54,8 +55,19 @@ pub fn create_leaderboard_embed(
   };
 
   serenity::CreateEmbed::default()
+    .author(get_embed_author(ctx))
     .title(format!("{}", title))
-    .description(description)
+    .description(format!("{}", description))
     .footer(serenity::CreateEmbedFooter::new(format!("Page {}/{}", page + 1, total_pages)))
     .color(Colour::MAGENTA)
+}
+
+pub fn get_embed_author(ctx: &impl CacheHttp) -> CreateEmbedAuthor {
+  if let Some(cache) = ctx.cache(){
+    let bot_user = cache.current_user();
+    let avatar_url = bot_user.avatar_url().unwrap_or_else(|| bot_user.default_avatar_url());
+    CreateEmbedAuthor::new(bot_user.name.clone()).icon_url(avatar_url)
+  } else {
+    CreateEmbedAuthor::new("Quote Bot")
+  }
 }
