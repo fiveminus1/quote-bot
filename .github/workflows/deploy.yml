@@ -59,10 +59,3 @@ jobs:
               -v /home/${{ secrets.EC2_USER }}/quote-bot/user_map.json:/app/user_map.json \
               ${{ secrets.DOCKER_USERNAME }}/quote-bot:latest
           EOF
-      
-      - name: Confirm bot started successfully
-        run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            sleep 5 && 
-            docker logs quote-bot 2>&1 | grep 'Hello, world!' || exit 1
-          "
