@@ -20,7 +20,7 @@ async fn main() {
   dotenv().ok();
   println!("Loading token");
   let token = env::var("DISCORD_TOKEN").expect("Error: missing Discord Token in .env");
-  println!("Loaded token");
+  println!("Loaded Discord token: {}", token);
 
   let intents = serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::GUILD_MESSAGES | serenity::GatewayIntents::MESSAGE_CONTENT;
 
@@ -53,5 +53,17 @@ async fn main() {
   let client = serenity::ClientBuilder::new(token, intents)
     .framework(framework)
     .await;
-  client.unwrap().start().await.unwrap();
+  
+  match client {
+    Ok(mut c) => {
+      if let Err(e) = c.start().await {
+        eprintln!("Client failed to start: {:?}", e);
+      }
+    }
+    Err(e) => {
+      eprintln!("Failed to build client: {:?}", e);
+  }
+}
+  
+  // client.unwrap().start().await.unwrap();
 }
