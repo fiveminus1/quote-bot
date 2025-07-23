@@ -2,5 +2,7 @@ target
 .git
 .gitignore
 .env
+.env.example
 quotes.db
 user_map.json
+user_map.json.example
