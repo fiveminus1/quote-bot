@@ -1645,6 +1645,7 @@ dependencies = [
  "chrono",
  "dotenvy",
  "interim",
+ "log",
  "notion-client",
  "poise",
  "serde",

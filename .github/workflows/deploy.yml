@@ -52,6 +52,7 @@ jobs:
               --name quote-bot \
               -e DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }} \
               -e DISCORD_GUILD_ID=${{ secrets.DISCORD_GUILD_ID }} \
+              -e DATABASE_PATH=${{ secrets.DATABASE_PATH }}
               -e NOTION_API_KEY=${{ secrets.NOTION_API_KEY }} \
               -e NOTION_DB_ID=${{ secrets.NOTION_DB_ID }} \
               -v /home/${{ secrets.EC2_USER }}/quote-bot/quotes.db:/app/quotes.db \

@@ -1,12 +1,32 @@
 use sqlx::{SqlitePool, Row};
 use crate::types::Quote;
+use std::env;
+use log::{info, error};
 
 pub async fn setup_db() -> Result<SqlitePool, sqlx::Error>{
-  let db = SqlitePool::connect("sqlite:/app/quotes.db").await?; // sqlite:/app/quotes.db
+  let db_path = env::var("DATABASE_PATH").unwrap_or_else(|_| "/app/quotes.db".to_string());
 
+  let db = sqlx::sqlite::SqlitePoolOptions::new()
+    .max_connections(5)
+    .connect_with(
+      sqlx::sqlite::SqliteConnectOptions::new()
+        .filename(&db_path)
+        .create_if_missing(true),
+    )
+    .await
+    .map_err(|e| {
+      error!("Error (sqlite): Failed to connect to database: {}", e);
+      e
+    })?;
+  
   sqlx::migrate!("./migrations")
     .run(&db)
-    .await?;
+    .await
+    .map_err(|e| {
+      error!("Error (sqlite): failed to run migrations - {}", e);
+      e
+    })?;
+  info!("Successfully set up sqlite db");
   
   Ok(db)
 }
