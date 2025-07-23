@@ -3,3 +3,4 @@ target
 .gitignore
 .env
 quotes.db
+user_map.json

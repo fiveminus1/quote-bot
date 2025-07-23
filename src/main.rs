@@ -65,5 +65,4 @@ async fn main() {
   }
 }
   
-  // client.unwrap().start().await.unwrap();
 }
