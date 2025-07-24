@@ -1,9 +1,8 @@
 mod commands;
 mod types;
 mod db;
-mod helpers;
+mod utils;
 mod notion;
-mod user_map;
 
 use poise::serenity_prelude as serenity;
 use dotenvy::dotenv;
@@ -11,7 +10,7 @@ use std::env;
 use notion_client::endpoints::Client as NotionClient;
 
 use crate::commands::{quote, leaderboard};
-use crate::types::{Data, Error};
+use crate::types::{Data, Error, UserMap};
 use crate::db::setup_db;
 
 #[tokio::main]
@@ -37,7 +36,7 @@ async fn main() {
         let db = setup_db().await?;
         let notion_api_key = env::var("NOTION_API_KEY");
         let notion_db_id = env::var("NOTION_DB_ID")?;
-        let user_map = user_map::UserMap::load_from_file("user_map.json")?; //todo: probably automate this
+        let user_map = UserMap::load_from_file("user_map.json")?; //todo: probably automate this
 
         let notion = NotionClient::new(notion_api_key?, None)
           .map_err(|e| format!("Error (Notion): Failed to initialize client - {}", e))?;

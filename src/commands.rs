@@ -4,7 +4,7 @@ use crate::notion::add_quote_to_notion;
 use crate::types::{Context, Error, Quote, LeaderboardType};
 use crate::db::{insert_quote, get_most_quoted, get_most_quotes};
 use interim::{parse_date_string, Dialect};
-use crate::helpers::{create_leaderboard_embed, create_nav_buttons, format_leaderboard_page, get_embed_author};
+use crate::utils::{create_leaderboard_embed, create_nav_buttons, format_leaderboard_page, get_embed_author};
 use ::serenity::all::{Colour};
 
 /// Log a quote from someone! 

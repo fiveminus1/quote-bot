@@ -3,9 +3,8 @@ use notion_client::endpoints::pages::create::{request::CreateAPageRequest};
 use notion_client::objects::parent::Parent;
 use notion_client::objects::page::{DateOrDateTime, DatePropertyValue, PageProperty, SelectPropertyValue};
 use notion_client::objects::rich_text::{RichText, Text};
-use crate::{types::{Error, Quote}};
+use crate::{types::{Error, Quote, UserMap}};
 use uuid::Uuid;
-use crate::user_map::UserMap;
 
 pub async fn add_quote_to_notion(
     client: &NotionClient,
@@ -76,4 +75,3 @@ pub async fn add_quote_to_notion(
 
     Ok(())
 }
-
