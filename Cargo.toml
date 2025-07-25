@@ -8,7 +8,7 @@ serenity = "0.12.4"
 poise = "0.6.1"
 tokio = { version = "1.21.2", features = ["full", "macros", "rt-multi-thread"] }
 dotenvy = "0.15"
-sqlx = { version = "0.8.6", features = ["runtime-tokio", "macros", "sqlite", "migrate"] }
+sqlx = { version = "0.8.6", features = ["runtime-tokio", "macros", "migrate", "postgres", "chrono"] }
 chrono = { version = "0.4", features = ["serde"] }
 interim = { version = "0.2.1", features = ["chrono_0_4"] }
 notion-client = "1.0.10"

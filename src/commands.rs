@@ -1,5 +1,5 @@
 use poise::serenity_prelude as serenity;
-use chrono::{Local};
+use chrono::{Local, Utc};
 use crate::notion::add_quote_to_notion;
 use crate::types::{Context, Error, Quote, LeaderboardType};
 use crate::db::{insert_quote, get_most_quoted, get_most_quotes};
@@ -17,7 +17,7 @@ pub async fn quote(
 ) -> Result<(), Error> {
   let quote_time = match &when {
     Some(t) => match parse_date_string(&t, Local::now(), Dialect::Us) {
-      Ok(parsed) => parsed,
+      Ok(parsed_local) => parsed_local.with_timezone(&Utc),
       Err(_) => {
         ctx.send(poise::CreateReply::default()
           .content("Error: invalid date or couldn't parse. Try '5pm,' 'yesterday 2:30pm,' '6/19 4pm'.")
@@ -28,7 +28,7 @@ pub async fn quote(
         return Ok(());
       }
     },
-    None => Local::now(),
+    None => Utc::now(),
   };
 
   let quote = Quote{
@@ -43,14 +43,14 @@ pub async fn quote(
     eprintln!("Error (Notion): failed to add quote to Notion - {}", e);
   }
 
-  let timestamp = quote.quote_time.timestamp();
+  let local_timestamp = quote.quote_time.with_timezone(&Local).timestamp();
   ctx.send(poise::CreateReply::default()
     .embed(
       serenity::CreateEmbed::default()
         .author(get_embed_author(&ctx))
         .title("🔥 **Quote logged**")
         .description(format!("\n\"*{}*\" -<@{}>", quote.quoted_text, quote.quoted_user))
-        .field("Date", format!("<t:{}:F>", timestamp), true)
+        .field("Date", format!("<t:{}:F>", local_timestamp), true)
         .color(Colour::MAGENTA)
 
     )
