@@ -2,7 +2,7 @@ FROM rust:1.88 AS builder
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y libsqlite3-dev pkg-config
+RUN apt-get update && apt-get install -y libpq-dev pkg-config
 
 COPY . .
 
